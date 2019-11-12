@@ -30,6 +30,8 @@ class Car(metaclass=Singleton):
 	inB1 = 22
 	inB2 = 27
 	enB = 17
+
+	velocity = 50
 	
 	def __init__(self) :
 
@@ -51,8 +53,8 @@ class Car(metaclass=Singleton):
 		self.q=GPIO.PWM(self.enB, 1000)
 
 
-		self.p.start(50)
-		self.q.start(50)
+		self.p.start(self.velocity)
+		self.q.start(self.velocity)
 
 		rospy.loginfo(rospy.get_caller_id()+': MOTORES CAR INICIADOS')
 	
@@ -73,9 +75,26 @@ class Car(metaclass=Singleton):
 		else:
 			GPIO.output(self.inB1, GPIO.LOW)
 			GPIO.output(self.inB2, GPIO.HIGH)
+	
+	def accelerate(self, acceleration):
+		rospy.loginfo('accelerate %s' % acceleration)
 
-
-
+		temp = self.velocity
+		if acceleration == 'car_lower':
+			temp = self.velocity - 25
+		elif acceleration == 'car_higher':
+			temp = self.velocity + 25
+		
+		if temp >= 25 and temp <= 100:
+			self.p.ChangeDutyCycle(temp)
+			self.q.ChangeDutyCycle(temp)
+			self.velocity = temp
+		elif temp < 25:
+			self.velocity = 0
+			GPIO.output(self.inA1,GPIO.LOW)
+			GPIO.output(self.inA2,GPIO.LOW)
+			GPIO.output(self.inB1,GPIO.LOW)
+			GPIO.output(self.inB2,GPIO.LOW)
 
 def callback(direction):
 
@@ -92,6 +111,9 @@ def callback(direction):
 	elif direction.data == 'car_right':
 		car.move_wheel_A(-1)
 		car.move_wheel_B(1)
+	elif direction.data == 'car_lower' or direction.data == 'car_higher':
+		car.accelerate(direction.data)
+	
 	elif direction.data == 'exit':
 		GPIO.cleanup()
 		car.p.stop

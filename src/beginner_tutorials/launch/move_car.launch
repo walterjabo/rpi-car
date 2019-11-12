@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="beginner_tutorials" type="move_camera_motor.py" name="camera"/>
+    <node pkg="beginner_tutorials" type="move_car_wheels.py" name="wheels"/>
+    <node pkg="beginner_tutorials" type="keyboard_engine.py" name="keyboard"/>
+</launch>

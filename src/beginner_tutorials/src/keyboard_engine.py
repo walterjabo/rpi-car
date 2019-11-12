@@ -53,6 +53,12 @@ def talker():
         elif x == 'C':
             command = 'car_right'
             kind = 'car'
+        elif x == 's':
+            command = 'car_lower'
+            kind = 'car'
+        elif x == 'w':
+            command = 'car_higher'
+            kind = 'car'
         elif x == 'e':
             command = 'exit'
 
